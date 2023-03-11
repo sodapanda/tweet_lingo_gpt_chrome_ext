@@ -31,7 +31,7 @@ function getLeafNodeTextContent(rootElement: any): string {
 
   while (stack.length > 0) {
     const currentElement = stack.pop()
-    console.log(`当前element 是 ${currentElement.tagName}`)
+    // console.log(`当前element 是 ${currentElement.tagName}`)
 
     let textContent = currentElement.textContent || ("" as string)
     if (currentElement.tagName === "IMG") {
@@ -44,9 +44,9 @@ function getLeafNodeTextContent(rootElement: any): string {
       leafNodeTextContent = `${
         textContent ? textContent : ""
       }${leafNodeTextContent}`
-      console.log(
-        ` 找到叶子节点 ${currentElement.tagName}${currentElement.textContent} - ${leafNodeTextContent}`
-      )
+      // console.log(
+      //   ` 找到叶子节点 ${currentElement.tagName}${currentElement.textContent} - ${leafNodeTextContent}`
+      // )
     } else {
       const childNodes = Array.from(currentElement?.childNodes || [])
       stack.push(...childNodes)
@@ -66,14 +66,16 @@ const PlasmoInline: FC<PlasmoCSUIProps> = ({ anchor }) => {
 
   const tweetHolder = anchor.element
   const [extMsg, setExt] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
   return (
     <ThemeProvider emotionCache={styleCache}>
       <Box component="div">
         <Button
+          loading={isLoading}
           onClick={async (event) => {
             event.stopPropagation()
-
+            setIsLoading(true)
             const storage = new Storage({
               area: "local"
             })
@@ -81,6 +83,12 @@ const PlasmoInline: FC<PlasmoCSUIProps> = ({ anchor }) => {
             const apiKey = await storage.get("apikey")
             if (!apiKey) {
               alert("no api key")
+              return
+            }
+
+            const language = await storage.get("lang")
+            if (!language) {
+              alert("no language set")
               return
             }
 
@@ -101,24 +109,15 @@ const PlasmoInline: FC<PlasmoCSUIProps> = ({ anchor }) => {
                 messages: [
                   {
                     role: "system",
-                    content: "请使用中文进行回答"
-                  },
-                  {
-                    role: "system",
-                    content: `当前日期:${formattedDate}`
-                  },
-                  {
-                    role: "system",
-                    content: "你是ChatGPT一个人工智能机器人"
-                  },
-                  {
-                    role: "system",
-                    content:
-                      "请对我输入的内容进行总结和解释。必要时进行扩展解释并且补充背景信息。"
+                    content: `Current date: ${formattedDate}; reply in language: ${language}`
                   },
                   {
                     role: "user",
-                    content: `${tweet}`
+                    content: `这是我读到的一条推文:\n ${tweet}`
+                  },
+                  {
+                    role: "user",
+                    content: `解释这条推文要表达的意思。必要时请加入背景信息介绍。`
                   }
                 ]
               })
@@ -127,8 +126,12 @@ const PlasmoInline: FC<PlasmoCSUIProps> = ({ anchor }) => {
               .then((data) => {
                 console.log(data)
                 setExt(data.choices[0].message.content)
+                setIsLoading(false)
               })
-              .catch((error) => console.log(error))
+              .catch((error) => {
+                console.log(error)
+                setIsLoading(false)
+              })
           }}>
           生成解释
         </Button>

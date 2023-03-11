@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  Container,
-  Flex,
-  Select,
-  rem
-} from "@mantine/core"
+import { Box, Button, Container, Flex, Select, rem } from "@mantine/core"
 import { PasswordInput } from "@mantine/core"
 import { useEffect, useState } from "react"
 
@@ -100,6 +93,7 @@ function IndexPopup() {
         />
         <Flex mt={160} mb={"xs"} direction="row" justify="flex-end">
           <Button
+            disabled={!openAiApiKey || !outputLang}
             mx="xs"
             onClick={async () => {
               await storage.set("apikey", openAiApiKey)
