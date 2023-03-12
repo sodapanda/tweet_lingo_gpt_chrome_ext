@@ -14,9 +14,11 @@
     "@mantine/core": "6.0.0",
     "@mantine/form": "^6.0.1",
     "@mantine/hooks": "6.0.0",
+    "@plasmohq/messaging": "^0.1.6",
     "@plasmohq/storage": "^1.2.2",
     "@tabler/icons-react": "^2.9.0",
     "date-fns": "^2.29.3",
+    "install": "^0.13.0",
     "plasmo": "0.66.0",
     "react": "18.2.0",
     "react-dom": "18.2.0"
