@@ -1,10 +1,10 @@
+import { IconBrandOpenai } from "@tabler/icons-react"
 import type {
   PlasmoCSConfig,
   PlasmoCSUIProps,
   PlasmoGetInlineAnchorList
 } from "plasmo"
 import type { FC } from "react"
-import { useState } from "react"
 
 import { usePort } from "@plasmohq/messaging/hook"
 import { Storage } from "@plasmohq/storage"
@@ -58,7 +58,11 @@ const PlasmoInline: FC<PlasmoCSUIProps> = ({ anchor }) => {
   const mPort = usePort("tweetport")
 
   return (
-    <button
+    <IconBrandOpenai
+      size={24}
+      style={{ marginTop: "5" }}
+      color="#74ac9e"
+      stroke={1.6}
       onClick={async (event) => {
         event.stopPropagation()
         const storage = new Storage({
@@ -82,9 +86,7 @@ const PlasmoInline: FC<PlasmoCSUIProps> = ({ anchor }) => {
         mPort.send({
           tweetContent: tweet
         })
-      }}>
-      生成解释
-    </button>
+      }}></IconBrandOpenai>
   )
 }
 
