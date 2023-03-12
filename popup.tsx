@@ -5,7 +5,9 @@ import Options from "./components/options"
 function IndexPopup() {
   return (
     <ThemeProvider>
-      <Options></Options>
+      <Options onSaveConfig={()=>{
+        window.close();
+      }}></Options>
     </ThemeProvider>
   )
 }

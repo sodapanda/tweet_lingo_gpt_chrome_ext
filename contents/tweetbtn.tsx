@@ -71,13 +71,19 @@ const PlasmoInline: FC<PlasmoCSUIProps> = ({ anchor }) => {
 
         const apiKey = await storage.get("apikey")
         if (!apiKey) {
-          alert("no api key")
+          mPort.send({
+            tweetContent: "",
+            noConfig: true
+          })
           return
         }
 
         const language = await storage.get("lang")
         if (!language) {
-          alert("no language set")
+          mPort.send({
+            tweetContent: "",
+            noConfig: true
+          })
           return
         }
 

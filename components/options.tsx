@@ -11,7 +11,11 @@ import { useEffect, useState } from "react"
 
 import { Storage } from "@plasmohq/storage"
 
-function Options() {
+interface OptProps {
+  onSaveConfig: () => void
+}
+
+function Options(props: OptProps) {
   const [openAiApiKey, setApiKey] = useState("")
   const [outputLang, setOutputLang] = useState<string | null>(null)
 
@@ -104,7 +108,7 @@ function Options() {
             await storage.set("apikey", openAiApiKey)
             await storage.set("lang", outputLang)
 
-            window.close()
+            props.onSaveConfig()
           }}>
           save
         </Button>
