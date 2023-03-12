@@ -11,6 +11,8 @@ import { useEffect, useState } from "react"
 
 import { Storage } from "@plasmohq/storage"
 
+import { prompts } from "../languagelist"
+
 interface OptProps {
   onSaveConfig: () => void
 }
@@ -23,18 +25,7 @@ function Options(props: OptProps) {
     area: "local"
   })
 
-  const topTenLanguages: string[] = [
-    "Chinese",
-    "Spanish",
-    "English",
-    "Hindi",
-    "Arabic",
-    "Portuguese",
-    "Bengali",
-    "Russian",
-    "Japanese",
-    "Punjabi"
-  ]
+  const topTenLanguages: string[] = prompts.map((item) => item.language)
 
   useEffect(() => {
     storage

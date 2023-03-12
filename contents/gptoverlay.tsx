@@ -21,6 +21,7 @@ import { Storage } from "@plasmohq/storage"
 import { ThemeProvider } from "~theme"
 
 import Options from "../components/options"
+import { prompts } from "../languagelist"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://twitter.com/*"]
@@ -77,6 +78,8 @@ export default function GptOverlay() {
       return
     }
 
+    const promptObj = prompts.find((item) => item.language === language)
+
     const currentDate = new Date()
 
     const formattedDate = format(currentDate, "yyyy/MM/dd")
@@ -98,11 +101,11 @@ export default function GptOverlay() {
           },
           {
             role: "user",
-            content: `这是我读到的一条推文:\n ${tweet}`
+            content: `${promptObj?.promptContent} ${tweet}`
           },
           {
             role: "user",
-            content: `解释这条推文要表达的意思。必要时请加入背景信息介绍。`
+            content: promptObj?.promptAction
           }
         ]
       })
