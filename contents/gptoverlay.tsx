@@ -52,6 +52,8 @@ const styleCache = createEmotionCache({
 
 export const getStyle = () => styleElement
 
+let controller: AbortController = null
+
 export default function GptOverlay() {
   const mPort = usePort("tweetport")
   const clipboard = useClipboard({ timeout: 500 })
@@ -82,6 +84,9 @@ export default function GptOverlay() {
       setGptText("")
     } else {
       setShowBtn(false)
+    }
+    if (controller) {
+      controller.abort()
     }
   }, [tweetList])
 
@@ -149,7 +154,10 @@ export default function GptOverlay() {
 
     setIsLoading(true)
 
+    controller = new AbortController()
+
     fetch("https://api.openai.com/v1/chat/completions", {
+      signal: controller.signal,
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -178,10 +186,12 @@ export default function GptOverlay() {
         console.log(data)
         setGptText(data.choices[0].message.content)
         setIsLoading(false)
+        controller = null
       })
       .catch((error) => {
         console.log(error)
         setIsLoading(false)
+        controller = null
       })
   }
 
@@ -254,6 +264,7 @@ export default function GptOverlay() {
                   </Text>
 
                   <ActionIcon
+                    disabled={isLoading}
                     variant="light"
                     color="blue"
                     radius="lg"
