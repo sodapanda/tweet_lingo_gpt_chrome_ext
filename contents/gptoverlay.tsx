@@ -1,16 +1,24 @@
 import {
   ActionIcon,
   Box,
+  Button,
   Card,
   Collapse,
+  Divider,
   Flex,
   Group,
+  Paper,
   Skeleton,
   Text,
   createEmotionCache
 } from "@mantine/core"
 import { useClipboard } from "@mantine/hooks"
-import { IconBrandTwitter, IconCopy, IconX } from "@tabler/icons-react"
+import {
+  IconBrandTwitter,
+  IconClearAll,
+  IconCopy,
+  IconX
+} from "@tabler/icons-react"
 import { format } from "date-fns"
 import type { PlasmoCSConfig } from "plasmo"
 import { useEffect, useState } from "react"
@@ -22,6 +30,11 @@ import { ThemeProvider } from "~theme"
 
 import Options from "../components/options"
 import { prompts } from "../languagelist"
+
+interface Tweet {
+  tweet: string
+  id: string
+}
 
 export const config: PlasmoCSConfig = {
   matches: ["https://twitter.com/*"]
@@ -45,6 +58,7 @@ export default function GptOverlay() {
   const [gptText, setGptText] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [showConfig, setShowConfig] = useState(false)
+  const [tweetList, setTweetList] = useState<Tweet[]>([])
 
   useEffect(() => {
     setShow(mPort.data?.tweetContent ? true : false)
@@ -55,11 +69,33 @@ export default function GptOverlay() {
       setShowConfig(false)
     }
 
-    callOpenAI(mPort.data?.tweetContent)
+    addToList(mPort.data?.tweetContent)
   }, [mPort.data])
 
-  async function callOpenAI(tweet: string) {
+  function addToList(tweet: string) {
     if (!tweet) {
+      return
+    }
+    const newList = tweetList.slice()
+    newList.push({ tweet: tweet, id: new Date().getTime().toString() })
+    setTweetList(newList)
+  }
+
+  function delFromList(id: string) {
+    let newList = tweetList.slice()
+    newList = newList.filter((item) => item.id !== id)
+    console.log(newList)
+    setTweetList(newList)
+  }
+
+  function clearList() {
+    let newList = []
+    setTweetList(newList)
+    setGptText("")
+  }
+
+  async function callOpenAI() {
+    if (tweetList.length === 0) {
       return
     }
     const storage = new Storage({
@@ -79,6 +115,9 @@ export default function GptOverlay() {
     }
 
     const promptObj = prompts.find((item) => item.language === language)
+    const tweetStr = tweetList
+      .map((item) => item.tweet)
+      .join(`\n${promptObj.promptReply}\n`)
 
     const currentDate = new Date()
 
@@ -101,7 +140,7 @@ export default function GptOverlay() {
           },
           {
             role: "user",
-            content: `${promptObj?.promptContent} ${tweet}`
+            content: `${promptObj?.promptContent} ${tweetStr}`
           },
           {
             role: "user",
@@ -162,10 +201,19 @@ export default function GptOverlay() {
             <Group position="apart" mb="xs">
               <Text weight={500}>The explanation of this tweet</Text>
               <ActionIcon
+                color="gray"
+                radius="lg"
+                onClick={() => {
+                  clearList()
+                }}>
+                <IconClearAll size="1.125rem" />
+              </ActionIcon>
+              <ActionIcon
                 color="blue"
                 radius="lg"
                 variant="filled"
                 onClick={() => {
+                  clearList()
                   mPort.send({
                     tweetContent: ""
                   })
@@ -173,6 +221,34 @@ export default function GptOverlay() {
                 <IconX size="1.125rem" />
               </ActionIcon>
             </Group>
+            {tweetList.map((tweetItem, index) => {
+              return (
+                <Flex
+                  mb="sm"
+                  key={tweetItem.id}
+                  justify="flex-start"
+                  align="center"
+                  direction="row">
+                  <Text>{`${index}`}</Text>
+                  <Paper mx="sm">{tweetItem.tweet}</Paper>
+                  <Button
+                    onClick={() => {
+                      delFromList(tweetItem.id)
+                    }}>
+                    delete
+                  </Button>
+                </Flex>
+              )
+            })}
+
+            <Divider my="sm" variant="dashed"></Divider>
+            <Button
+              onClick={() => {
+                callOpenAI()
+              }}>
+              Do
+            </Button>
+
             {isLoading ? (
               <Box component="div" mb="xl">
                 <Skeleton height={8} radius="xl" />
