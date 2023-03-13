@@ -14,9 +14,10 @@ import {
 } from "@mantine/core"
 import { useClipboard } from "@mantine/hooks"
 import {
+  IconBrandOpenai,
   IconBrandTwitter,
-  IconClearAll,
   IconCopy,
+  IconTrash,
   IconX
 } from "@tabler/icons-react"
 import { format } from "date-fns"
@@ -208,14 +209,6 @@ export default function GptOverlay() {
             <Group position="apart" mb="xs">
               <Text weight={500}>The explanation of this tweet</Text>
               <ActionIcon
-                color="gray"
-                radius="lg"
-                onClick={() => {
-                  clearList()
-                }}>
-                <IconClearAll size="1.125rem" />
-              </ActionIcon>
-              <ActionIcon
                 color="blue"
                 radius="lg"
                 variant="filled"
@@ -228,34 +221,56 @@ export default function GptOverlay() {
                 <IconX size="1.125rem" />
               </ActionIcon>
             </Group>
+
+            <Divider my="sm"></Divider>
+
             {tweetList.map((tweetItem, index) => {
               return (
-                <Flex
-                  mb="sm"
-                  key={tweetItem.id}
-                  justify="flex-start"
-                  align="center"
-                  direction="row">
-                  <Text>{`${index}`}</Text>
-                  <Text>{`${tweetItem.userName}`}</Text>
-                  <Paper mx="sm">{tweetItem.tweet}</Paper>
-                  <Button
+                <Group key={tweetItem.id} position="apart" spacing="xs" mb={2}>
+                  <Text
+                    maw={"80%"}
+                    mx="sm"
+                    fz="sm"
+                    c="dimmed"
+                    truncate
+                    lineClamp={1}>
+                    {tweetItem.tweet}
+                  </Text>
+
+                  <ActionIcon
+                    variant="light"
+                    color="blue"
+                    radius="lg"
                     onClick={() => {
                       delFromList(tweetItem.id)
                     }}>
-                    delete
-                  </Button>
-                </Flex>
+                    <IconTrash size="1.125rem" />
+                  </ActionIcon>
+                </Group>
               )
             })}
 
-            <Divider my="sm" variant="dashed"></Divider>
-            <Button
-              onClick={() => {
-                callOpenAI()
-              }}>
-              Do
-            </Button>
+            <Flex
+              mt="sm"
+              mb="sm"
+              justify="center"
+              align="center"
+              direction="row"
+              wrap="nowrap">
+              <Divider w={150} my="sm" variant="dashed"></Divider>
+              <Button
+                color="teal"
+                size="sm"
+                radius="xl"
+                leftIcon={<IconBrandOpenai />}
+                variant="filled"
+                onClick={() => {
+                  callOpenAI()
+                }}>
+                Explain
+              </Button>
+              <Divider w={150} my="sm" variant="dashed"></Divider>
+            </Flex>
 
             {isLoading ? (
               <Box component="div" mb="xl">
@@ -270,7 +285,7 @@ export default function GptOverlay() {
                 <Skeleton height={8} mt={6} width="70%" radius="xl" />
               </Box>
             ) : (
-              <Text size="sm" color="dimmed" mb="xl">
+              <Text size="sm" mb="xl">
                 {gptText}
               </Text>
             )}
