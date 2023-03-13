@@ -1,0 +1,16 @@
+.tweenbtnholder {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  background-color: transparent;
+  border-radius: 15px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.tweenbtnholder:hover {
+  background-color: #eee;
+}

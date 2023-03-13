@@ -1,16 +1,24 @@
-import { IconBrandOpenai } from "@tabler/icons-react"
+import { IconBrandOpenai, IconPlus } from "@tabler/icons-react"
+import cssText from "data-text:~/contents/tweetbtn.css"
 import type {
   PlasmoCSConfig,
   PlasmoCSUIProps,
   PlasmoGetInlineAnchorList
 } from "plasmo"
 import type { FC } from "react"
+import { useState } from "react"
 
 import { usePort } from "@plasmohq/messaging/hook"
 import { Storage } from "@plasmohq/storage"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://twitter.com/*"]
+}
+
+export const getStyle = () => {
+  const style = document.createElement("style")
+  style.textContent = cssText
+  return style
 }
 
 export const getInlineAnchorList: PlasmoGetInlineAnchorList = () => {
@@ -102,14 +110,21 @@ function getUserHandle(rootElement: any) {
 const PlasmoInline: FC<PlasmoCSUIProps> = ({ anchor }) => {
   const tweetHolder = anchor.element
 
+  const [isHovered, setIsHovered] = useState(false)
+  const handleMouseEnter = () => {
+    setIsHovered(true)
+  }
+  const handleMouseLeave = () => {
+    setIsHovered(false)
+  }
+
   const mPort = usePort("tweetport")
 
   return (
-    <IconBrandOpenai
-      size={24}
-      style={{ marginTop: "5" }}
-      color="#74ac9e"
-      stroke={1.6}
+    <div
+      className="tweenbtnholder"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       onClick={async (event) => {
         event.stopPropagation()
         const storage = new Storage({
@@ -142,7 +157,13 @@ const PlasmoInline: FC<PlasmoCSUIProps> = ({ anchor }) => {
           tweetContent: tweet,
           userName: userName
         })
-      }}></IconBrandOpenai>
+      }}>
+      {isHovered ? (
+        <IconPlus size={24} color="#74ac9e" stroke={1.6} />
+      ) : (
+        <IconBrandOpenai size={24} color="#74ac9e" stroke={1.6} />
+      )}
+    </div>
   )
 }
 
