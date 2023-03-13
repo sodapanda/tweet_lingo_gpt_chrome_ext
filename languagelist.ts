@@ -3,7 +3,7 @@ export const prompts = [
     language: "Chinese",
     promptContent: `这是我读到的一条推文:\n `,
     promptAction: "解释这条推文要表达的意思。必要时请加入背景信息介绍。",
-    promptReply: "别人的回复如下："
+    promptReply: "回复如下："
   },
   {
     language: "Spanish",

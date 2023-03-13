@@ -34,6 +34,7 @@ import { prompts } from "../languagelist"
 interface Tweet {
   tweet: string
   id: string
+  userName: string
 }
 
 export const config: PlasmoCSConfig = {
@@ -69,15 +70,19 @@ export default function GptOverlay() {
       setShowConfig(false)
     }
 
-    addToList(mPort.data?.tweetContent)
+    addToList(mPort.data?.tweetContent, mPort.data?.userName)
   }, [mPort.data])
 
-  function addToList(tweet: string) {
+  function addToList(tweet: string, userName: string) {
     if (!tweet) {
       return
     }
     const newList = tweetList.slice()
-    newList.push({ tweet: tweet, id: new Date().getTime().toString() })
+    newList.push({
+      tweet: tweet,
+      userName: userName,
+      id: new Date().getTime().toString()
+    })
     setTweetList(newList)
   }
 
@@ -116,7 +121,9 @@ export default function GptOverlay() {
 
     const promptObj = prompts.find((item) => item.language === language)
     const tweetStr = tweetList
-      .map((item) => item.tweet)
+      .map((item) => {
+        return `${item.userName}\n ${item.tweet}`
+      })
       .join(`\n${promptObj.promptReply}\n`)
 
     const currentDate = new Date()
@@ -230,6 +237,7 @@ export default function GptOverlay() {
                   align="center"
                   direction="row">
                   <Text>{`${index}`}</Text>
+                  <Text>{`${tweetItem.userName}`}</Text>
                   <Paper mx="sm">{tweetItem.tweet}</Paper>
                   <Button
                     onClick={() => {

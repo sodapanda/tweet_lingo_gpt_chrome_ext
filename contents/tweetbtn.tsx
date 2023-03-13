@@ -52,6 +52,53 @@ function getLeafNodeTextContent(rootElement: any): string {
   return leafNodeTextContent
 }
 
+function findAncestor(el: any) {
+  let parentNode = el.parentNode
+  while (
+    parentNode &&
+    parentNode.tagName !== "ARTICLE" &&
+    parentNode.getAttribute("data-testid") !== "tweet"
+  ) {
+    parentNode = parentNode.parentNode
+  }
+
+  return parentNode
+}
+
+function findElementByTestId(element, testId) {
+  if (
+    element.tagName === "DIV" &&
+    element.hasAttribute("data-testid") &&
+    element.getAttribute("data-testid") === testId
+  ) {
+    // 如果找到了具有所需测试ID的元素，则返回该元素。
+    return element
+  } else {
+    // 遍历子节点
+    for (let i = 0; i < element.childNodes.length; i++) {
+      const childNode = element.childNodes[i]
+      // 递归查找子节点
+      const result = findElementByTestId(childNode, testId)
+      if (result) {
+        // 如果找到了所需的元素，则将其返回。
+        return result
+      }
+    }
+  }
+  // 如果遍历完所有的子节点仍然没有找到所需的元素，则返回null。
+  return null
+}
+
+function getUserHandle(rootElement: any) {
+  const tweetRoot = findAncestor(rootElement)
+  const userNameNode = findElementByTestId(tweetRoot, "User-Names")
+  let userName = getLeafNodeTextContent(userNameNode)
+  if (userName?.includes("·")) {
+    userName = userName?.split("·")[0]
+  }
+  return userName
+}
+
 const PlasmoInline: FC<PlasmoCSUIProps> = ({ anchor }) => {
   const tweetHolder = anchor.element
 
@@ -87,10 +134,13 @@ const PlasmoInline: FC<PlasmoCSUIProps> = ({ anchor }) => {
           return
         }
 
+        const userName = getUserHandle(tweetHolder)
+
         const tweet = getLeafNodeTextContent(tweetHolder)
 
         mPort.send({
-          tweetContent: tweet
+          tweetContent: tweet,
+          userName: userName
         })
       }}></IconBrandOpenai>
   )
