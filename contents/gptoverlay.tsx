@@ -61,9 +61,11 @@ export default function GptOverlay() {
   const [isLoading, setIsLoading] = useState(false)
   const [showConfig, setShowConfig] = useState(false)
   const [tweetList, setTweetList] = useState<Tweet[]>([])
+  const [showGptBtn, setShowBtn] = useState(true)
 
   useEffect(() => {
     setShow(mPort.data?.tweetContent ? true : false)
+    setShowBtn(mPort.data?.tweetContent ? true : false)
 
     if (mPort.data?.noConfig) {
       setShowConfig(true)
@@ -73,6 +75,21 @@ export default function GptOverlay() {
 
     addToList(mPort.data?.tweetContent, mPort.data?.userName)
   }, [mPort.data])
+
+  useEffect(() => {
+    if (tweetList?.length > 0) {
+      setShowBtn(true)
+      setGptText("")
+    } else {
+      setShowBtn(false)
+    }
+  }, [tweetList])
+
+  useEffect(() => {
+    if (gptText) {
+      clearList()
+    }
+  }, [gptText])
 
   function addToList(tweet: string, userName: string) {
     if (!tweet) {
@@ -97,7 +114,6 @@ export default function GptOverlay() {
   function clearList() {
     let newList = []
     setTweetList(newList)
-    setGptText("")
   }
 
   async function callOpenAI() {
@@ -250,27 +266,29 @@ export default function GptOverlay() {
               )
             })}
 
-            <Flex
-              mt="sm"
-              mb="sm"
-              justify="center"
-              align="center"
-              direction="row"
-              wrap="nowrap">
-              <Divider w={150} my="sm" variant="dashed"></Divider>
-              <Button
-                color="teal"
-                size="sm"
-                radius="xl"
-                leftIcon={<IconBrandOpenai />}
-                variant="filled"
-                onClick={() => {
-                  callOpenAI()
-                }}>
-                Explain
-              </Button>
-              <Divider w={150} my="sm" variant="dashed"></Divider>
-            </Flex>
+            {showGptBtn ? (
+              <Flex
+                mt="sm"
+                mb="sm"
+                justify="center"
+                align="center"
+                direction="row"
+                wrap="nowrap">
+                <Divider w={150} my="sm" variant="dashed"></Divider>
+                <Button
+                  color="teal"
+                  size="sm"
+                  radius="xl"
+                  leftIcon={<IconBrandOpenai />}
+                  variant="filled"
+                  onClick={() => {
+                    callOpenAI()
+                  }}>
+                  Explain
+                </Button>
+                <Divider w={150} my="sm" variant="dashed"></Divider>
+              </Flex>
+            ) : null}
 
             {isLoading ? (
               <Box component="div" mb="xl">
