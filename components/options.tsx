@@ -1,12 +1,14 @@
 import {
-  Box,
+  ActionIcon,
   Button,
   Container,
   Flex,
   PasswordInput,
   Select,
+  Text,
   rem
 } from "@mantine/core"
+import { IconBrandOpenai, IconPlus } from "@tabler/icons-react"
 import { useEffect, useState } from "react"
 
 import { Storage } from "@plasmohq/storage"
@@ -52,8 +54,12 @@ function Options(props: OptProps) {
   }, [])
   return (
     <Container miw={420} px={0}>
-      <Box
-        component="div"
+      <Flex
+        gap="sm"
+        justify="flex-start"
+        align="center"
+        direction="row"
+        wrap="nowrap"
         sx={(theme) => ({
           backgroundImage: theme.fn.gradient({
             from: "blue",
@@ -61,7 +67,19 @@ function Options(props: OptProps) {
             deg: 20
           }),
           height: rem("4rem")
-        })}></Box>
+        })}>
+        <ActionIcon ml="sm" color="cyan" size="xl" radius="xl" variant="filled">
+          <IconBrandOpenai size="2.125rem" />
+        </ActionIcon>
+        <Text
+          sx={{ fontFamily: "Greycliff CF, sans-serif" }}
+          ta="center"
+          c="white"
+          fz="xl"
+          fw={700}>
+          Tweet Lingo
+        </Text>
+      </Flex>
       <PasswordInput
         mx="xs"
         mt="xs"
