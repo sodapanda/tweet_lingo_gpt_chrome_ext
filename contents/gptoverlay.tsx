@@ -301,7 +301,7 @@ export default function GptOverlay() {
                 <Skeleton height={8} mt={6} width="70%" radius="xl" />
               </Box>
             ) : (
-              <Text size="sm" mb="xl">
+              <Text fz="md" c="dimmed" mb="xl">
                 {gptText}
               </Text>
             )}
