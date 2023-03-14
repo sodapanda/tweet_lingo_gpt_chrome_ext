@@ -10,8 +10,6 @@ import { useState } from "react"
 
 import { Storage } from "@plasmohq/storage"
 
-import EventBusSt from "~EventBusSt"
-
 export const config: PlasmoCSConfig = {
   matches: ["https://twitter.com/*"]
 }
@@ -119,8 +117,6 @@ const PlasmoInline: FC<PlasmoCSUIProps> = ({ anchor }) => {
     setIsHovered(false)
   }
 
-  const eventBus = EventBusSt.getInstance().eventbus
-
   return (
     <div
       className="tweenbtnholder"
@@ -128,27 +124,24 @@ const PlasmoInline: FC<PlasmoCSUIProps> = ({ anchor }) => {
       onMouseLeave={handleMouseLeave}
       onClick={async (event) => {
         event.stopPropagation()
-        const storage = new Storage({
-          area: "local"
-        })
+        const strg = new Storage()
 
-        const apiKey = await storage.get("apikey")
+        const apiKey = await strg.get("apikey")
         if (!apiKey) {
-          eventBus.emit("my-event", null, { noConfig: true })
+          strg.set("tweet", { noConfig: true })
           return
         }
 
-        const language = await storage.get("lang")
+        const language = await strg.get("lang")
         if (!language) {
-          eventBus.emit("my-event", null, { noConfig: true })
+          strg.set("tweet", { noConfig: true })
           return
         }
 
         const userName = getUserHandle(tweetHolder)
-
         const tweet = getLeafNodeTextContent(tweetHolder)
 
-        eventBus.emit("my-event", null, { tweet: tweet, userName: userName })
+        strg.set("tweet", { tweet: tweet, userName: userName })
       }}>
       {isHovered ? (
         <IconPlus size={24} color="#74ac9e" stroke={1.6} />

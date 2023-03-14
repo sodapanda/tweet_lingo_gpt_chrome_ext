@@ -103,4 +103,5 @@ export interface Tweet {
   id: string
   userName: string
   noConfig: boolean
+  outDated: boolean
 }

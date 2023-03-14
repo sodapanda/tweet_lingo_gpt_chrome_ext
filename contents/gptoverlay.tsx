@@ -24,8 +24,8 @@ import type { PlasmoCSConfig } from "plasmo"
 import { useEffect, useState } from "react"
 
 import { Storage } from "@plasmohq/storage"
+import { useStorage } from "@plasmohq/storage/hook"
 
-import EventBusSt from "~EventBusSt"
 import { ThemeProvider } from "~theme"
 
 import Options from "../components/options"
@@ -57,19 +57,19 @@ export default function GptOverlay() {
   const [showConfig, setShowConfig] = useState(false)
   const [tweetList, setTweetList] = useState<Tweet[]>([])
   const [showGptBtn, setShowBtn] = useState(true)
+  const [tweet] = useStorage("tweet")
 
   useEffect(() => {
-    const eventBus = EventBusSt.getInstance().eventbus
-    eventBus.on("my-event", (tweetEvent: Tweet) => {
-      setShow(!!tweetEvent.tweet)
-      setShowBtn(!!tweetEvent.tweet)
-      setShowConfig(tweetEvent.noConfig)
-      addToList(tweetEvent)
-    })
-    return () => {
-      eventBus.detachAll()
+    console.log(tweet)
+    if (tweet && !tweet.outDated) {
+      setShow(!!tweet.tweet)
+      setShowBtn(!!tweet.tweet)
+      setShowConfig(tweet.noConfig)
+      addToList(tweet)
+      const strg = new Storage()
+      strg.set("tweet", { outDated: true })
     }
-  }, [])
+  }, [tweet])
 
   useEffect(() => {
     if (tweetList?.length > 0) {
@@ -114,9 +114,7 @@ export default function GptOverlay() {
     if (tweetList.length === 0) {
       return
     }
-    const storage = new Storage({
-      area: "local"
-    })
+    const storage = new Storage()
 
     const apiKey = await storage.get("apikey")
     if (!apiKey) {
@@ -229,7 +227,9 @@ export default function GptOverlay() {
                 variant="filled"
                 onClick={() => {
                   clearList()
-                  EventBusSt.getInstance().eventbus.emit("my-event", null, {})
+                  // EventBusSt.getInstance().eventbus.emit("my-event", null, {})
+                  const strg = new Storage()
+                  strg.set("tweet", { tweet: "" })
                 }}>
                 <IconX size="1.125rem" />
               </ActionIcon>

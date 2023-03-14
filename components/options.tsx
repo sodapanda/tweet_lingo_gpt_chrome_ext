@@ -8,7 +8,7 @@ import {
   Text,
   rem
 } from "@mantine/core"
-import { IconBrandOpenai, IconPlus } from "@tabler/icons-react"
+import { IconBrandOpenai } from "@tabler/icons-react"
 import { useEffect, useState } from "react"
 
 import { Storage } from "@plasmohq/storage"
@@ -23,9 +23,7 @@ function Options(props: OptProps) {
   const [openAiApiKey, setApiKey] = useState("")
   const [outputLang, setOutputLang] = useState<string | null>(null)
 
-  const storage = new Storage({
-    area: "local"
-  })
+  const storage = new Storage()
 
   const topTenLanguages: string[] = prompts.map((item) => item.language)
 
