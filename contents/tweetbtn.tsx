@@ -8,8 +8,9 @@ import type {
 import type { FC } from "react"
 import { useState } from "react"
 
-import { usePort } from "@plasmohq/messaging/hook"
 import { Storage } from "@plasmohq/storage"
+
+import EventBusSt from "~EventBusSt"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://twitter.com/*"]
@@ -118,7 +119,7 @@ const PlasmoInline: FC<PlasmoCSUIProps> = ({ anchor }) => {
     setIsHovered(false)
   }
 
-  const mPort = usePort("tweetport")
+  const eventBus = EventBusSt.getInstance().eventbus
 
   return (
     <div
@@ -133,19 +134,13 @@ const PlasmoInline: FC<PlasmoCSUIProps> = ({ anchor }) => {
 
         const apiKey = await storage.get("apikey")
         if (!apiKey) {
-          mPort.send({
-            tweetContent: "",
-            noConfig: true
-          })
+          eventBus.emit("my-event", null, { noConfig: true })
           return
         }
 
         const language = await storage.get("lang")
         if (!language) {
-          mPort.send({
-            tweetContent: "",
-            noConfig: true
-          })
+          eventBus.emit("my-event", null, { noConfig: true })
           return
         }
 
@@ -153,10 +148,7 @@ const PlasmoInline: FC<PlasmoCSUIProps> = ({ anchor }) => {
 
         const tweet = getLeafNodeTextContent(tweetHolder)
 
-        mPort.send({
-          tweetContent: tweet,
-          userName: userName
-        })
+        eventBus.emit("my-event", null, { tweet: tweet, userName: userName })
       }}>
       {isHovered ? (
         <IconPlus size={24} color="#74ac9e" stroke={1.6} />

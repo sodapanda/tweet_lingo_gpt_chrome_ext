@@ -97,3 +97,10 @@ export const prompts = [
       "Hãy giải thích ý nghĩa của tweet này. Nếu cần, hãy bổ sung thông tin về bối cảnh."
   }
 ]
+
+export interface Tweet {
+  tweet: string
+  id: string
+  userName: string
+  noConfig: boolean
+}

@@ -7,7 +7,6 @@ import {
   Divider,
   Flex,
   Group,
-  Paper,
   Skeleton,
   Text,
   createEmotionCache
@@ -24,19 +23,14 @@ import { format } from "date-fns"
 import type { PlasmoCSConfig } from "plasmo"
 import { useEffect, useState } from "react"
 
-import { usePort } from "@plasmohq/messaging/hook"
 import { Storage } from "@plasmohq/storage"
 
+import EventBusSt from "~EventBusSt"
 import { ThemeProvider } from "~theme"
 
 import Options from "../components/options"
 import { prompts } from "../languagelist"
-
-interface Tweet {
-  tweet: string
-  id: string
-  userName: string
-}
+import type { Tweet } from "../languagelist"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://twitter.com/*"]
@@ -55,7 +49,6 @@ export const getStyle = () => styleElement
 let controller: AbortController = null
 
 export default function GptOverlay() {
-  const mPort = usePort("tweetport")
   const clipboard = useClipboard({ timeout: 500 })
 
   const [show, setShow] = useState(false)
@@ -66,17 +59,17 @@ export default function GptOverlay() {
   const [showGptBtn, setShowBtn] = useState(true)
 
   useEffect(() => {
-    setShow(mPort.data?.tweetContent ? true : false)
-    setShowBtn(mPort.data?.tweetContent ? true : false)
-
-    if (mPort.data?.noConfig) {
-      setShowConfig(true)
-    } else {
-      setShowConfig(false)
+    const eventBus = EventBusSt.getInstance().eventbus
+    eventBus.on("my-event", (tweetEvent: Tweet) => {
+      setShow(!!tweetEvent.tweet)
+      setShowBtn(!!tweetEvent.tweet)
+      setShowConfig(tweetEvent.noConfig)
+      addToList(tweetEvent)
+    })
+    return () => {
+      eventBus.detachAll()
     }
-
-    addToList(mPort.data?.tweetContent, mPort.data?.userName)
-  }, [mPort.data])
+  }, [])
 
   useEffect(() => {
     if (tweetList?.length > 0) {
@@ -96,23 +89,19 @@ export default function GptOverlay() {
     }
   }, [gptText])
 
-  function addToList(tweet: string, userName: string) {
-    if (!tweet) {
+  function addToList(tweet: Tweet) {
+    if (!tweet || !tweet.tweet) {
       return
     }
-    const newList = tweetList.slice()
-    newList.push({
-      tweet: tweet,
-      userName: userName,
-      id: new Date().getTime().toString()
+
+    setTweetList((preList) => {
+      return [...preList, { ...tweet, id: new Date().getTime().toString() }]
     })
-    setTweetList(newList)
   }
 
   function delFromList(id: string) {
     let newList = tweetList.slice()
     newList = newList.filter((item) => item.id !== id)
-    console.log(newList)
     setTweetList(newList)
   }
 
@@ -240,9 +229,7 @@ export default function GptOverlay() {
                 variant="filled"
                 onClick={() => {
                   clearList()
-                  mPort.send({
-                    tweetContent: ""
-                  })
+                  EventBusSt.getInstance().eventbus.emit("my-event", null, {})
                 }}>
                 <IconX size="1.125rem" />
               </ActionIcon>
