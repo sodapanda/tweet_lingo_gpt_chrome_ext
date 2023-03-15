@@ -9,6 +9,7 @@ import {
   Group,
   Skeleton,
   Text,
+  Timeline,
   createEmotionCache
 } from "@mantine/core"
 import { useClipboard } from "@mantine/hooks"
@@ -155,7 +156,7 @@ export default function GptOverlay() {
         messages: [
           {
             role: "system",
-            content: `Current date: ${formattedDate}; reply in language: ${language}`
+            content: `Current date: ${formattedDate};`
           },
           {
             role: "user",
@@ -237,33 +238,35 @@ export default function GptOverlay() {
 
             <Divider my="sm"></Divider>
 
-            {tweetList.map((tweetItem, index) => {
-              return (
-                <Group key={tweetItem.id} position="apart" spacing="xs" mb={2}>
-                  <Text
-                    maw={"80%"}
-                    mx="sm"
-                    fz="sm"
-                    c="dimmed"
-                    truncate
-                    lineClamp={1}>
-                    {tweetItem.tweet}
-                  </Text>
-
-                  <ActionIcon
-                    disabled={isLoading}
-                    variant="light"
-                    color="blue"
-                    radius="lg"
-                    onClick={() => {
-                      delFromList(tweetItem.id)
-                    }}>
-                    <IconTrash size="1.125rem" />
-                  </ActionIcon>
-                </Group>
-              )
-            })}
-
+            {tweetList.length > 0 ? (
+              <Box component="div" mb="xl">
+                <Timeline
+                  active={tweetList.length - 1}
+                  bulletSize={20}
+                  lineWidth={2}>
+                  {tweetList.map((tweetItem, index) => {
+                    return (
+                      <Timeline.Item
+                        key={tweetItem.id}
+                        bullet={<IconBrandTwitter size={10} />}
+                        title={tweetItem.userName}>
+                        <Text mx="sm" fz="sm" c="dimmed" truncate lineClamp={2}>
+                          {tweetItem.tweet}
+                        </Text>
+                      </Timeline.Item>
+                    )
+                  })}
+                  <Timeline.Item
+                    lineVariant="dashed"
+                    bullet={<IconBrandTwitter size={12} />}
+                    title="">
+                    <Text mx="sm" fz="sm" c="dimmed" truncate lineClamp={2}>
+                      {` `}
+                    </Text>
+                  </Timeline.Item>
+                </Timeline>
+              </Box>
+            ) : null}
             {showGptBtn ? (
               <Flex
                 mt="sm"
@@ -274,6 +277,7 @@ export default function GptOverlay() {
                 wrap="nowrap">
                 <Divider w={150} my="sm" variant="dashed"></Divider>
                 <Button
+                  disabled={isLoading}
                   color="teal"
                   size="sm"
                   radius="xl"

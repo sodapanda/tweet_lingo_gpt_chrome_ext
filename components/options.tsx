@@ -96,7 +96,7 @@ function Options(props: OptProps) {
         mt="xs"
         withAsterisk
         mx="xs"
-        label="Choose your main language."
+        label="Select your main language"
         placeholder="Pick one"
         radius="md"
         size="sm"
