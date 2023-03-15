@@ -331,12 +331,19 @@ export default function GptOverlay() {
               </ActionIcon>
               <Box
                 component="a"
-                href="https://twitter.com/leucasio"
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  alignItems: "center"
+                }}
+                href="https://twitter.com/intent/tweet?text=%40leucasio"
                 target="_blank"
                 rel="noreferrer">
                 <ActionIcon color="blue">
                   <IconBrandTwitter size="1.125rem" />
                 </ActionIcon>
+                @leucasio
               </Box>
             </Flex>
           </Card>
