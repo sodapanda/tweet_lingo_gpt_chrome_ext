@@ -129,6 +129,11 @@ export default function GptOverlay() {
       return
     }
 
+    let model = await storage.get("model")
+    if (!model) {
+      model = "gpt-3.5-turbo"
+    }
+
     const promptObj = prompts.find((item) => item.language === language)
     const tweetStr = tweetList
       .map((item) => {
@@ -152,7 +157,7 @@ export default function GptOverlay() {
         Authorization: `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
+        model: `${model}`,
         messages: [
           {
             role: "system",
@@ -180,6 +185,7 @@ export default function GptOverlay() {
         console.log(error)
         setIsLoading(false)
         controller = null
+        alert("Open AI API error,check your API key please.")
       })
   }
 

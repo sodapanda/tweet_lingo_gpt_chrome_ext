@@ -4,6 +4,7 @@ import {
   Container,
   Flex,
   PasswordInput,
+  Radio,
   Select,
   Text,
   rem
@@ -22,6 +23,7 @@ interface OptProps {
 function Options(props: OptProps) {
   const [openAiApiKey, setApiKey] = useState("")
   const [outputLang, setOutputLang] = useState<string | null>(null)
+  const [model, setModel] = useState("gpt-3.5-turbo")
 
   const storage = new Storage()
 
@@ -49,6 +51,12 @@ function Options(props: OptProps) {
       .catch((error) => {
         console.error(error)
       })
+
+    storage.get("model").then((savedModel) => {
+      if (savedModel) {
+        setModel(savedModel)
+      }
+    })
   }, [])
   return (
     <Container miw={420} px={0}>
@@ -107,6 +115,18 @@ function Options(props: OptProps) {
         data={topTenLanguages}
         maxDropdownHeight={120}
       />
+
+      <Radio.Group
+        mt="xs"
+        mx="xs"
+        value={model}
+        onChange={setModel}
+        name="modelName"
+        label="Select Open AI model"
+        withAsterisk>
+        <Radio value="gpt-3.5-turbo" label="gpt-3.5-turbo" />
+        <Radio mt={2} value="gpt-4" label="gpt-4" />
+      </Radio.Group>
       <Flex mt={100} mb={"xs"} direction="row" justify="flex-end">
         <Button
           disabled={!openAiApiKey || !outputLang}
@@ -114,6 +134,7 @@ function Options(props: OptProps) {
           onClick={async () => {
             await storage.set("apikey", openAiApiKey)
             await storage.set("lang", outputLang)
+            await storage.set("model", model)
 
             props.onSaveConfig()
           }}>
