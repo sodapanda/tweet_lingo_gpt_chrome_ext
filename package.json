@@ -35,8 +35,7 @@
     "typescript": "4.9.5"
   },
   "manifest": {
-    "host_permissions": [
-      "https://*/*"
-    ]
+    "name": "Tweet Lingo",
+    "description": "Tweet Lingo: Understand Every Tweet When Translation Doesn't Cut It."
   }
 }
