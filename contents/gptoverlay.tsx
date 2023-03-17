@@ -29,6 +29,7 @@ import { useStorage } from "@plasmohq/storage/hook"
 
 import { ThemeProvider } from "~theme"
 
+import { parseEventSource } from "../api/helper"
 import Options from "../components/options"
 import { prompts } from "../languagelist"
 import type { Tweet } from "../languagelist"
@@ -76,11 +77,9 @@ export default function GptOverlay() {
     if (tweetList?.length > 0) {
       setShowBtn(true)
       setGptText("")
+      controller?.abort()
     } else {
       setShowBtn(false)
-    }
-    if (controller) {
-      controller.abort()
     }
   }, [tweetList])
 
@@ -149,44 +148,74 @@ export default function GptOverlay() {
 
     controller = new AbortController()
 
-    fetch("https://api.openai.com/v1/chat/completions", {
-      signal: controller.signal,
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: `${model}`,
-        messages: [
-          {
-            role: "system",
-            content: `Current date: ${formattedDate};`
+    try {
+      const response = await fetch(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          signal: controller.signal,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`
           },
-          {
-            role: "user",
-            content: `${promptObj?.promptContent} ${tweetStr}`
-          },
-          {
-            role: "user",
-            content: promptObj?.promptAction
-          }
-        ]
-      })
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data)
-        setGptText(data.choices[0].message.content)
+          body: JSON.stringify({
+            model: `${model}`,
+            stream: true,
+            messages: [
+              {
+                role: "system",
+                content: `Current date: ${formattedDate};`
+              },
+              {
+                role: "user",
+                content: `${promptObj?.promptContent} ${tweetStr}`
+              },
+              {
+                role: "user",
+                content: promptObj?.promptAction
+              }
+            ]
+          })
+        }
+      )
+      const stream = response.body
+      if (!stream) {
+        alert("open ai server error.")
+        return
+      }
+      if (stream.locked) {
+        console.error("locked")
+        return
+      }
+      const reader = stream.getReader()
+      let reading = true
+      while (reading) {
+        const { done, value } = await reader.read()
         setIsLoading(false)
-        controller = null
-      })
-      .catch((error) => {
-        console.log(error)
-        setIsLoading(false)
-        controller = null
-        alert("Open AI API error,check your API key please.")
-      })
+        const result = parseEventSource(new TextDecoder().decode(value))
+        if (result === "[DONE]" || done) {
+          reading = false
+          console.log("done!")
+        } else {
+          const resultString = result.reduce((output: string, curr) => {
+            if (typeof curr === "string") return output
+            else {
+              const content = curr.choices[0].delta.content
+              if (content) output += content
+              return output
+            }
+          }, "")
+          console.log(resultString)
+          setGptText((oldValue) => `${oldValue}${resultString}`)
+        }
+      }
+      reader.cancel()
+      reader.releaseLock()
+      stream.cancel()
+      controller = null
+    } catch (error) {
+      console.log(error.messages)
+    }
   }
 
   if (showConfig) {
@@ -234,9 +263,9 @@ export default function GptOverlay() {
                 variant="filled"
                 onClick={() => {
                   clearList()
-                  // EventBusSt.getInstance().eventbus.emit("my-event", null, {})
                   const strg = new Storage()
                   strg.set("tweet", { tweet: "" })
+                  controller?.abort()
                 }}>
                 <IconX size="1.125rem" />
               </ActionIcon>
