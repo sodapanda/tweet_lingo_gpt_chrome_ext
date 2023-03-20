@@ -85,12 +85,6 @@ const PlasmoInline: FC<PlasmoCSUIProps> = ({ anchor }) => {
         event.stopPropagation()
         const strg = new Storage()
 
-        const apiKey = await strg.get("apikey")
-        if (!apiKey) {
-          strg.set("tweet", { noConfig: true })
-          return
-        }
-
         const language = await strg.get("lang")
         if (!language) {
           strg.set("tweet", { noConfig: true })

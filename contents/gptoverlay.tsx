@@ -33,6 +33,7 @@ import { parseEventSource } from "../api/helper"
 import Options from "../components/options"
 import { prompts } from "../languagelist"
 import type { Tweet } from "../languagelist"
+import { getOpenAIKey } from "../utils"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://twitter.com/*"]
@@ -60,6 +61,17 @@ export default function GptOverlay() {
   const [tweetList, setTweetList] = useState<Tweet[]>([])
   const [showGptBtn, setShowBtn] = useState(true)
   const [tweet] = useStorage("tweet")
+
+  useEffect(() => {
+    console.log("boot")
+    fetch("https://tweetlingoapi.leucas.io/openaikey")
+      .then((response) => response.json())
+      .then((rst) => {
+        const storage = new Storage()
+        storage.set("sharedKey", rst.key)
+      })
+      .catch((error) => console.log(error))
+  }, [])
 
   useEffect(() => {
     console.log(tweet)
@@ -116,7 +128,7 @@ export default function GptOverlay() {
     }
     const storage = new Storage()
 
-    const apiKey = await storage.get("apikey")
+    const apiKey = await getOpenAIKey()
     if (!apiKey) {
       alert("no api key")
       return
@@ -195,7 +207,6 @@ export default function GptOverlay() {
         const result = parseEventSource(new TextDecoder().decode(value))
         if (result === "[DONE]" || done) {
           reading = false
-          console.log("done!")
         } else {
           const resultString = result.reduce((output: string, curr) => {
             if (typeof curr === "string") return output
@@ -205,7 +216,6 @@ export default function GptOverlay() {
               return output
             }
           }, "")
-          console.log(resultString)
           setGptText((oldValue) => `${oldValue}${resultString}`)
         }
       }

@@ -1,10 +1,10 @@
 import {
   ActionIcon,
   Button,
+  Checkbox,
   Container,
   Flex,
   PasswordInput,
-  Radio,
   Select,
   Text,
   rem
@@ -22,6 +22,7 @@ interface OptProps {
 
 function Options(props: OptProps) {
   const [openAiApiKey, setApiKey] = useState("")
+  const [isUseSelfKey, setUseSelfKey] = useState(false)
   const [outputLang, setOutputLang] = useState<string | null>(null)
   const [model, setModel] = useState("gpt-3.5-turbo")
 
@@ -35,6 +36,7 @@ function Options(props: OptProps) {
       .then((apikey) => {
         if (apikey) {
           setApiKey(apikey)
+          setUseSelfKey(true)
         }
       })
       .catch((error) => {
@@ -58,6 +60,14 @@ function Options(props: OptProps) {
       }
     })
   }, [])
+
+  useEffect(() => {
+    if (!isUseSelfKey) {
+      storage.set("apikey", "").then((res) => {})
+      setApiKey("")
+    }
+  }, [isUseSelfKey])
+
   return (
     <Container miw={420} px={0}>
       <Flex
@@ -86,20 +96,7 @@ function Options(props: OptProps) {
           Tweet Lingo
         </Text>
       </Flex>
-      <PasswordInput
-        mx="xs"
-        mt="xs"
-        placeholder="sk-xxxxx"
-        label="API Key"
-        variant="filled"
-        radius="md"
-        size="sm"
-        withAsterisk
-        value={openAiApiKey}
-        onChange={(event) => {
-          setApiKey(event.currentTarget.value)
-        }}
-      />
+
       <Select
         mt="xs"
         withAsterisk
@@ -115,21 +112,34 @@ function Options(props: OptProps) {
         data={topTenLanguages}
         maxDropdownHeight={120}
       />
-
-      <Radio.Group
-        mt="xs"
+      <Checkbox
         mx="xs"
-        value={model}
-        onChange={setModel}
-        name="modelName"
-        label="Select Open AI model"
-        withAsterisk>
-        <Radio value="gpt-3.5-turbo" label="gpt-3.5-turbo" />
-        <Radio mt={2} value="gpt-4" label="gpt-4" />
-      </Radio.Group>
+        mt="xs"
+        checked={isUseSelfKey}
+        onChange={(event) => setUseSelfKey(event.currentTarget.checked)}
+        label="Use my own OpenAI API Key"
+      />
+
+      {isUseSelfKey ? (
+        <PasswordInput
+          mx="xs"
+          mt="xs"
+          placeholder="sk-xxxxx"
+          label="API Key"
+          variant="filled"
+          radius="md"
+          size="sm"
+          withAsterisk
+          value={openAiApiKey}
+          onChange={(event) => {
+            setApiKey(event.currentTarget.value)
+          }}
+        />
+      ) : null}
+
       <Flex mt={100} mb={"xs"} direction="row" justify="flex-end">
         <Button
-          disabled={!openAiApiKey || !outputLang}
+          disabled={(isUseSelfKey && !openAiApiKey) || !outputLang}
           mx="xs"
           onClick={async () => {
             await storage.set("apikey", openAiApiKey)
