@@ -7,7 +7,9 @@ import {
   Divider,
   Flex,
   Group,
+  Overlay,
   Skeleton,
+  Stack,
   Text,
   Timeline,
   createEmotionCache
@@ -60,6 +62,7 @@ export default function GptOverlay() {
   const [showConfig, setShowConfig] = useState(false)
   const [tweetList, setTweetList] = useState<Tweet[]>([])
   const [showGptBtn, setShowBtn] = useState(true)
+  const [cover, setCover] = useState(false)
   const [tweet] = useStorage("tweet")
 
   useEffect(() => {
@@ -122,6 +125,24 @@ export default function GptOverlay() {
     setTweetList(newList)
   }
 
+  async function callToAction() {
+    const storage = new Storage()
+    const followed = await storage.get("followed")
+    let counter = parseInt(await storage.get("counter"), 10)
+
+    if (!followed && !isNaN(counter)) {
+      counter = counter === 12 ? 1 : counter + 1
+
+      if (counter % 3 === 0) {
+        setCover(true)
+      }
+
+      await storage.set("counter", counter.toString())
+    } else {
+      await storage.set("counter", "1")
+    }
+  }
+
   async function callOpenAI() {
     if (tweetList.length === 0) {
       return
@@ -159,6 +180,8 @@ export default function GptOverlay() {
     setIsLoading(true)
 
     controller = new AbortController()
+
+    await callToAction()
 
     try {
       const response = await fetch(
@@ -350,9 +373,46 @@ export default function GptOverlay() {
                 <Skeleton height={8} mt={6} width="70%" radius="xl" />
               </Box>
             ) : (
-              <Text fz="md" c="dimmed" mb="xl">
-                {gptText}
-              </Text>
+              <Box sx={{ position: "relative" }}>
+                {gptText ? (
+                  <Text mih={200} fz="md" c="dimmed" mb="xl">
+                    {gptText}
+                  </Text>
+                ) : null}
+                {cover ? (
+                  <Overlay color="#fff" blur={5} center>
+                    <Stack>
+                      <Text fz="lg" c="dimmed" fw={500}>
+                        Enjoying Tweet Lingo? 🐦
+                      </Text>
+                      <Text fz="sm">
+                        Please follow our Twitter to keep using Tweet Lingo and
+                        stay updated on the latest features!
+                      </Text>
+                      <Group position="apart" grow>
+                        <Button
+                          component="a"
+                          href="https://twitter.com/intent/follow?screen_name=leucasio"
+                          target="_blank"
+                          onClick={async () => {
+                            setCover(false)
+                            const storage = new Storage()
+                            await storage.set("followed", "true")
+                          }}>
+                          Follow us on Twitter
+                        </Button>
+                        <Button
+                          variant="subtle"
+                          onClick={() => {
+                            setCover(false)
+                          }}>
+                          Remind me later
+                        </Button>
+                      </Group>
+                    </Stack>
+                  </Overlay>
+                ) : null}
+              </Box>
             )}
 
             <Flex
