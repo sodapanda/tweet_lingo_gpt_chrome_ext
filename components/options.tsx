@@ -180,7 +180,7 @@ function Options(props: OptProps) {
 
             props.onSaveConfig()
           }}>
-          save
+          Confirm
         </Button>
       </Flex>
     </Container>
