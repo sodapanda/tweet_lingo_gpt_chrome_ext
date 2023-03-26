@@ -7,7 +7,9 @@ import {
   Divider,
   Flex,
   Group,
+  List,
   Overlay,
+  ScrollArea,
   Skeleton,
   Stack,
   Text,
@@ -33,7 +35,7 @@ import { ThemeProvider } from "~theme"
 
 import { parseEventSource } from "../api/helper"
 import Options from "../components/options"
-import { prompts } from "../languagelist"
+import { prompts, prompts_talk, talkModes } from "../languagelist"
 import type { Tweet } from "../languagelist"
 import { getOpenAIKey } from "../utils"
 
@@ -161,12 +163,21 @@ export default function GptOverlay() {
       return
     }
 
+    const talkMode = await storage.get("mode")
+    if (!talkMode) {
+      alert("Choose a talk mode")
+      return
+    } else if (talkMode === "Reader") {
+      var promptObj = prompts_talk.find((item) => item.language === language)
+    } else if (talkMode === "Teacher") {
+      var promptObj = prompts.find((item) => item.language === language)
+    }
+
     let model = await storage.get("model")
     if (!model) {
       model = "gpt-3.5-turbo"
     }
 
-    const promptObj = prompts.find((item) => item.language === language)
     const tweetStr = tweetList
       .map((item) => {
         return `${item.userName}\n ${item.tweet}`
@@ -251,6 +262,21 @@ export default function GptOverlay() {
     }
   }
 
+  const [displayList, setList] = useState(null)
+  useEffect(() => {
+    // Split the string by the dash character
+    let strArr = gptText.split("-");
+    // Map each item to a <List.Item> element
+    let listItems = strArr.map((item, index) => {
+      return <List.Item key={index}>{item}</List.Item>;
+    });
+    // Assign the <List> element to a variable called newResult
+    let newResult = <List>{listItems}</List>;
+    // Set the result state to the newResult variable
+    setList(newResult);
+  }, [gptText]); // Pass gptText as a dependency to the useEffect hook
+
+
   if (showConfig) {
     return (
       <ThemeProvider emotionCache={styleCache}>
@@ -265,6 +291,7 @@ export default function GptOverlay() {
             bottom: 53,
             right: 20
           }}>
+
           <Options
             onSaveConfig={() => {
               setShowConfig(false)
@@ -289,7 +316,7 @@ export default function GptOverlay() {
               right: 20
             }}>
             <Group position="apart" mb="xs">
-              <Text weight={500}>The explanation of this tweet</Text>
+              <Text weight={500}>Explained by GPT</Text>
               <ActionIcon
                 color="blue"
                 radius="lg"
@@ -374,19 +401,19 @@ export default function GptOverlay() {
               </Box>
             ) : (
               <Box sx={{ position: "relative" }}>
-                {gptText ? (
-                  <Text mih={200} fz="md" c="dimmed" mb="xl">
-                    {gptText}
-                  </Text>
+                {displayList ? (
+                  <ScrollArea h={250} scrollHideDelay={500} type="scroll">
+                    {displayList}
+                  </ScrollArea>
                 ) : null}
                 {cover ? (
                   <Overlay color="#fff" blur={5} center>
                     <Stack>
                       <Text fz="lg" c="dimmed" fw={500}>
-                        Enjoying Tweet Lingo? 🐦
+                        Enjoying Twitter Language Teacher? 🐦
                       </Text>
                       <Text fz="sm">
-                        Please follow our Twitter to keep using Tweet Lingo and
+                        Please follow our Twitter to keep using Twitter Language Teacher and
                         stay updated on the latest features!
                       </Text>
                       <Group position="apart" grow>
@@ -414,7 +441,6 @@ export default function GptOverlay() {
                 ) : null}
               </Box>
             )}
-
             <Flex
               gap="sm"
               justify="flex-end"
@@ -447,7 +473,8 @@ export default function GptOverlay() {
             </Flex>
           </Card>
         </Collapse>
-      </ThemeProvider>
+
+      </ThemeProvider >
     )
   }
 }

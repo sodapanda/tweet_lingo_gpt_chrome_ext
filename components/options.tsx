@@ -14,7 +14,7 @@ import { useEffect, useState } from "react"
 
 import { Storage } from "@plasmohq/storage"
 
-import { prompts } from "../languagelist"
+import { prompts, talkModes } from "../languagelist"
 
 interface OptProps {
   onSaveConfig: () => void
@@ -24,11 +24,14 @@ function Options(props: OptProps) {
   const [openAiApiKey, setApiKey] = useState("")
   const [isUseSelfKey, setUseSelfKey] = useState(false)
   const [outputLang, setOutputLang] = useState<string | null>(null)
+  const [talkMode, setTalkMode] = useState<string>("Teacher")
   const [model, setModel] = useState("gpt-3.5-turbo")
 
   const storage = new Storage()
 
   const topTenLanguages: string[] = prompts.map((item) => item.language)
+
+  const allTalkModes: string[] = talkModes.map((item) => item.mode)
 
   useEffect(() => {
     storage
@@ -54,6 +57,17 @@ function Options(props: OptProps) {
         console.error(error)
       })
 
+    storage
+      .get("mode")
+      .then((mode) => {
+        if (mode) {
+          setTalkMode(mode)
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+
     storage.get("model").then((savedModel) => {
       if (savedModel) {
         setModel(savedModel)
@@ -63,7 +77,7 @@ function Options(props: OptProps) {
 
   useEffect(() => {
     if (!isUseSelfKey) {
-      storage.set("apikey", "").then((res) => {})
+      storage.set("apikey", "").then((res) => { })
       setApiKey("")
     }
   }, [isUseSelfKey])
@@ -93,7 +107,7 @@ function Options(props: OptProps) {
           c="white"
           fz="xl"
           fw={700}>
-          Tweet Lingo
+          GPT Language Teacher
         </Text>
       </Flex>
 
@@ -112,6 +126,23 @@ function Options(props: OptProps) {
         data={topTenLanguages}
         maxDropdownHeight={120}
       />
+
+      <Select
+        mt="xs"
+        withAsterisk
+        mx="xs"
+        label="Select interpretation mode"
+        placeholder="Reader"
+        radius="md"
+        size="sm"
+        searchable
+        nothingFound="Reader"
+        value={talkMode}
+        onChange={setTalkMode}
+        data={allTalkModes}
+        maxDropdownHeight={120}
+      />
+
       <Checkbox
         mx="xs"
         mt="xs"
@@ -145,10 +176,11 @@ function Options(props: OptProps) {
             await storage.set("apikey", openAiApiKey)
             await storage.set("lang", outputLang)
             await storage.set("model", model)
+            await storage.set("mode", talkMode)
 
             props.onSaveConfig()
           }}>
-          save
+          Confirm
         </Button>
       </Flex>
     </Container>
