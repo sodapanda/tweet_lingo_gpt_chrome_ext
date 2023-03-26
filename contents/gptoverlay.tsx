@@ -8,6 +8,7 @@ import {
   Flex,
   Group,
   Overlay,
+  ScrollArea,
   Skeleton,
   Stack,
   Text,
@@ -33,7 +34,7 @@ import { ThemeProvider } from "~theme"
 
 import { parseEventSource } from "../api/helper"
 import Options from "../components/options"
-import { prompts } from "../languagelist"
+import { prompts, prompts_talk, talkModes } from "../languagelist"
 import type { Tweet } from "../languagelist"
 import { getOpenAIKey } from "../utils"
 
@@ -161,12 +162,21 @@ export default function GptOverlay() {
       return
     }
 
+    const talkMode = await storage.get("mode")
+    if (!talkMode) {
+      alert("Choose a talk mode")
+      return
+    } else if (talkMode === "Reader") {
+      var promptObj = prompts_talk.find((item) => item.language === language)
+    } else if (talkMode === "Teacher") {
+      var promptObj = prompts.find((item) => item.language === language)
+    }
+
     let model = await storage.get("model")
     if (!model) {
       model = "gpt-3.5-turbo"
     }
 
-    const promptObj = prompts.find((item) => item.language === language)
     const tweetStr = tweetList
       .map((item) => {
         return `${item.userName}\n ${item.tweet}`
@@ -265,6 +275,7 @@ export default function GptOverlay() {
             bottom: 53,
             right: 20
           }}>
+
           <Options
             onSaveConfig={() => {
               setShowConfig(false)
@@ -307,33 +318,33 @@ export default function GptOverlay() {
             <Divider my="sm"></Divider>
 
             {tweetList.length > 0 ? (
-              <Box component="div" mb="xl">
-                <Timeline
-                  active={tweetList.length - 1}
-                  bulletSize={20}
-                  lineWidth={2}>
-                  {tweetList.map((tweetItem, index) => {
-                    return (
-                      <Timeline.Item
-                        key={tweetItem.id}
-                        bullet={<IconBrandTwitter size={10} />}
-                        title={tweetItem.userName}>
-                        <Text mx="sm" fz="sm" c="dimmed" truncate lineClamp={2}>
-                          {tweetItem.tweet}
-                        </Text>
-                      </Timeline.Item>
-                    )
-                  })}
-                  <Timeline.Item
-                    lineVariant="dashed"
-                    bullet={<IconBrandTwitter size={12} />}
-                    title="">
-                    <Text mx="sm" fz="sm" c="dimmed" truncate lineClamp={2}>
-                      {` `}
-                    </Text>
-                  </Timeline.Item>
-                </Timeline>
-              </Box>
+                <Box component="div" mb="xl">
+                  <Timeline
+                    active={tweetList.length - 1}
+                    bulletSize={20}
+                    lineWidth={2}>
+                    {tweetList.map((tweetItem, index) => {
+                      return (
+                        <Timeline.Item
+                          key={tweetItem.id}
+                          bullet={<IconBrandTwitter size={10} />}
+                          title={tweetItem.userName}>
+                          <Text mx="sm" fz="sm" c="dimmed" truncate lineClamp={2}>
+                            {tweetItem.tweet}
+                          </Text>
+                        </Timeline.Item>
+                      )
+                    })}
+                    <Timeline.Item
+                      lineVariant="dashed"
+                      bullet={<IconBrandTwitter size={12} />}
+                      title="">
+                      <Text mx="sm" fz="sm" c="dimmed" truncate lineClamp={2}>
+                        {` `}
+                      </Text>
+                    </Timeline.Item>
+                  </Timeline>
+                </Box>
             ) : null}
             {showGptBtn ? (
               <Flex
@@ -375,15 +386,17 @@ export default function GptOverlay() {
             ) : (
               <Box sx={{ position: "relative" }}>
                 {gptText ? (
-                  <Text mih={200} fz="md" c="dimmed" mb="xl">
-                    {gptText}
-                  </Text>
+                  <ScrollArea h={250} scrollHideDelay={500} type="scroll">
+                    <Text mih={200} fz="md" c="dimmed" mb="xl">
+                      {gptText}
+                    </Text>
+                  </ScrollArea>
                 ) : null}
                 {cover ? (
                   <Overlay color="#fff" blur={5} center>
                     <Stack>
                       <Text fz="lg" c="dimmed" fw={500}>
-                        Enjoying Tweet Lingo? 🐦
+                        Enjoying Twitter Language Teacher? 🐦
                       </Text>
                       <Text fz="sm">
                         Please follow our Twitter to keep using Tweet Lingo and
@@ -414,7 +427,6 @@ export default function GptOverlay() {
                 ) : null}
               </Box>
             )}
-
             <Flex
               gap="sm"
               justify="flex-end"
@@ -447,7 +459,8 @@ export default function GptOverlay() {
             </Flex>
           </Card>
         </Collapse>
-      </ThemeProvider>
+
+      </ThemeProvider >
     )
   }
 }

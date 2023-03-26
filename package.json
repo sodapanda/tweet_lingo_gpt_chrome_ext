@@ -1,9 +1,9 @@
 {
-  "name": "tweet-lingo",
-  "displayName": "Tweet lingo",
-  "version": "0.0.1",
-  "description": "understanding English-language tweets made simple",
-  "author": "leucas.io",
+  "name": "tweet-language-teacher",
+  "displayName": "Twitter Language Teacher",
+  "version": "0.0.4",
+  "description": "Immersive learning of languages on twitter with GPT!",
+  "author": "leucas.io, choochoo train",
   "scripts": {
     "dev": "plasmo dev",
     "build": "plasmo build",
@@ -35,8 +35,8 @@
     "typescript": "4.9.5"
   },
   "manifest": {
-    "version": "0.0.3",
-    "name": "Tweet Lingo",
-    "description": "Tweet Lingo: Understand Every Tweet When Translation Doesn't Cut It."
+    "version": "0.0.4",
+    "name": "Twitter Language Teacher",
+    "description": "Twitter Language Teacher: Immersive learning of languages on Twitter with GPT!"
   }
 }

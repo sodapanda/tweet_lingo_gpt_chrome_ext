@@ -3,6 +3,107 @@ export const prompts = [
     language: "Chinese",
     promptContent: `这是我读到的一条推文:\n `,
     promptAction:
+      "请像一个语言教师一样解释这个推文的含义，词汇和语法",
+    promptReply: "回复如下："
+  },
+  {
+    language: "Spanish",
+    promptContent: `Este es un tweet que leí: \n `,
+    promptReply: "La respuesta de otra persona es la siguiente:",
+    promptAction:
+      "Explique el significado, el vocabulario y la gramática de este tuit como un profesor de idiomas."
+  },
+  {
+    language: "English",
+    promptContent: `This is a tweet I read: \n `,
+    promptReply: "Someone's reply is as follows:",
+    promptAction:
+      "Please explain the meaning, vocabulary and grammar of this tweet like a language teacher"
+  },
+  {
+    language: "Arabic",
+    promptContent: `هذه هي تغريدة قرأتها: \n `,
+    promptReply: "رد شخص ما كالتالي:",
+    promptAction:
+      "يرجى شرح المعنى والمفردات والقواعد اللغوية لهذه التغريدة مثل مدرس اللغة"
+  },
+  {
+    language: "Hindi",
+    promptContent: `यह मैंने पढ़ा एक ट्वीट है: \n `,
+    promptReply: "अन्य व्यक्ति का जवाब निम्नलिखित है:",
+    promptAction:
+      "कृपया एक भाषा शिक्षक की तरह इस ट्वीट का अर्थ, शब्दावली और व्याकरण समझाएं"
+  },
+  {
+    language: "Bengali",
+    promptContent: `এটি একটি টুইট যা আমি পড়েছি: \n `,
+    promptReply: "অন্যান্য ব্যক্তির উত্তর এমনভাবে:",
+    promptAction:
+      "অনুগ্রহ করে একজন ভাষা শিক্ষকের মতো এই টুইটটির অর্থ, শব্দভান্ডার এবং ব্যাকরণ ব্যাখ্যা করুন"
+  },
+  {
+    language: "Portuguese",
+    promptContent: `Este é um tweet que li: \n `,
+    promptReply: "A resposta de outra pessoa é a seguinte:",
+    promptAction:
+      "Por favor, explique o significado, vocabulário e gramática deste tweet como um professor de idiomas"
+  },
+  {
+    language: "Russian",
+    promptContent: `Это твит, который я прочитал: \n `,
+    promptReply: "Ответ другого человека следующий:",
+    promptAction:
+      "Пожалуйста, объясните смысл, словарный запас и грамматику этого твита, как учитель языка."
+  },
+  {
+    language: "Japanese",
+    promptContent: `これは私が読んだツイートです：\n `,
+    promptReply: "他の人の回答は次のとおりです：",
+    promptAction:
+      "このツイートの意味、語彙、文法を国語の先生のように説明してください"
+  },
+  {
+    language: "Punjabi",
+    promptContent: `ਇਹ ਮੈਂਨੂੰ ਪੜਿਆ ਇੱਕ ਟਵੀਟ ਹੈ: \n `,
+    promptReply: "ਕਿਸੇ ਹੋਰ ਵਿਅਕਤੀ ਦਾ ਜਵਾਬ ਹੇਠਾਂ ਦਿੱਤਾ ਗਿਆ ਹੈ:",
+    promptAction:
+      "ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਭਾਸ਼ਾ ਅਧਿਆਪਕ ਵਾਂਗ ਇਸ ਟਵੀਟ ਦੇ ਅਰਥ, ਸ਼ਬਦਾਵਲੀ ਅਤੇ ਵਿਆਕਰਨ ਦੀ ਵਿਆਖਿਆ ਕਰੋ"
+  },
+  {
+    language: "German",
+    promptContent: `Dies ist ein Tweet, den ich gelesen habe: \n `,
+    promptReply: "Die Antwort von jemandem lautet:",
+    promptAction:
+      "Bitte erklären Sie die Bedeutung, das Vokabular und die Grammatik dieses Tweets wie ein Sprachlehrer"
+  },
+  {
+    language: "Korean",
+    promptContent: `이것은 내가 읽은 트윗입니다:\n `,
+    promptReply: "다른 사람의 대답은 다음과 같습니다.",
+    promptAction:
+      "언어 선생님처럼 이 트윗의 의미, 어휘, 문법을 설명해주세요."
+  },
+  {
+    language: "French",
+    promptContent: `Ceci est un tweet que j'ai lu : \n `,
+    promptReply: "La réponse de quelqu'un est la suivante:",
+    promptAction:
+      "Veuillez expliquer le sens, le vocabulaire et la grammaire de ce tweet comme un professeur de langue"
+  },
+  {
+    language: "Vietnamese",
+    promptContent: `Đây là tweet mà tôi đã đọc: \n `,
+    promptReply: "Câu trả lời của một người khác như sau:",
+    promptAction:
+      "Hãy giải thích ý nghĩa, từ vựng và ngữ pháp của tweet này như một giáo viên ngôn ngữ"
+  }
+]
+
+export const prompts_talk = [
+  {
+    language: "Chinese",
+    promptContent: `这是我读到的一条推文:\n `,
+    promptAction:
       "已知所有推文内容都是符合事实的。解释这条推文要表达的意思。必要时请加入背景信息介绍。",
     promptReply: "回复如下："
   },
@@ -99,6 +200,14 @@ export const prompts = [
   }
 ]
 
+export const talkModes = [
+  {
+    mode: "Teacher"
+  },
+  {
+    mode: "Reader"
+  }
+]
 export interface Tweet {
   tweet: string
   id: string
